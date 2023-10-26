@@ -7,7 +7,8 @@ export type GetAuthTokenT = {
 export type GetTaskResponseT = {
   code: number;
   msg: string;
-  cookie: string;
+  cookie?: string;
+  input?: string[];
 };
 
 export type SendAnswerReponseT = {
