@@ -2,8 +2,9 @@
   "type": "module",
   "name": "aidevs2",
   "scripts": {
-    "lesson1": "npx playwright test --grep Lesson1",
-    "lesson2": "npx playwright test --grep Lesson2"
+    "task1": "npx playwright test --grep Task1",
+    "task2": "npx playwright test --grep Task2",
+    "task3": "npx playwright test --grep Task3"
   },
   "devDependencies": {
     "@playwright/test": "^1.39.0",

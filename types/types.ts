@@ -9,7 +9,12 @@ export type GetTaskResponseT = {
   msg: string;
   cookie?: string;
   input?: string[];
+  blog?: string[];
 };
+
+export interface CookieTaskT extends GetTaskResponseT {
+  cookie: string;
+}
 
 export type SendAnswerReponseT = {
   code: number;

@@ -4,6 +4,7 @@ import {
   GetTaskResponseT,
   SendAnswerReponseT,
 } from "./types/types";
+import OpenAI from "openai";
 
 const URL = process.env.AI_DEVS_API_BASE_URL;
 const apiKey = process.env.AI_DEVS_API_KEY;
@@ -37,7 +38,7 @@ export async function moderateText(input: string[]) {
       headers: {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
-    }
+    },
   );
   const result = res.data.results.map((result, i) => {
     if (result.flagged) {
@@ -48,5 +49,34 @@ export async function moderateText(input: string[]) {
   });
 
   return result;
-  // return res.data;
+}
+
+export async function generateBlogPosts(blogTitles: string[]) {
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+  const res = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: [
+      {
+        role: "user",
+        content: `Generate blog posts for provided blog titles, make them in polish language,
+        ###
+        Return in JSON format for example: ["title": xyz, "content" : blog post]
+          ###
+          blog post titles: 
+          ${blogTitles}
+          `,
+      },
+    ],
+  });
+  console.log(res);
+  type AnswerT = {
+    title: string;
+    content: string;
+  };
+  let openaiAnswer: AnswerT[];
+  openaiAnswer = JSON.parse(res.choices[0].message.content!) as AnswerT[];
+  console.log(openaiAnswer);
+  return openaiAnswer.map((firstBlogPost) => firstBlogPost.content);
 }
