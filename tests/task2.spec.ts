@@ -1,17 +1,11 @@
 import { expect, test } from "@playwright/test";
-import {
-  generateBlogPosts,
-  getAuthToken,
-  getTask,
-  moderateText,
-  sendAnswer,
-} from "../index";
-import { log } from "console";
+import { getAuthToken, getTask, moderateText, sendAnswer } from "../index";
+import { ModerationTaskResponse } from "../types/types";
 
 test("moderation, lesson2 ", async () => {
   const authToken = await getAuthToken("moderation");
-  const { input } = await getTask(authToken);
-  const res = await moderateText(input!);
-  const adb = await sendAnswer(res, authToken);
-  expect(adb).toBe("CORRECT");
+  const { input }: ModerationTaskResponse = await getTask(authToken);
+  const moderationResult = await moderateText(input);
+  const result = await sendAnswer(moderationResult, authToken);
+  expect(result).toBe("CORRECT");
 });

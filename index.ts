@@ -1,13 +1,16 @@
 import axios from "axios";
+import OpenAI from "openai";
 import {
   GetAuthTokenT,
-  GetTaskResponseT,
+  ModerationResults,
   SendAnswerReponseT,
+  gtpAnswer,
 } from "./types/types";
-import OpenAI from "openai";
 
 const URL = process.env.AI_DEVS_API_BASE_URL;
 const apiKey = process.env.AI_DEVS_API_KEY;
+
+// Reusable functions for all tasks:
 export async function getAuthToken(taskName: string) {
   const res = await axios.post<GetAuthTokenT>(`${URL}/token/${taskName}`, {
     apikey: apiKey,
@@ -17,19 +20,20 @@ export async function getAuthToken(taskName: string) {
 }
 
 export async function getTask(token: string) {
-  const res = await axios.get<GetTaskResponseT>(`${URL}/task/${token}`);
+  const res = await axios.get(`${URL}/task/${token}`);
   return res.data;
 }
 
-export async function sendAnswer(answer: string, token: string) {
+export async function sendAnswer(answer: unknown, token: string) {
   const res = await axios.post<SendAnswerReponseT>(`${URL}/answer/${token}`, {
     answer: answer,
   });
   return res.data.note;
 }
 
-export async function moderateText(input: string[]) {
-  const res = await axios.post(
+// Task 2 functions
+async function getModerationResult(input: string[]) {
+  return axios.post<ModerationResults>(
     "https://api.openai.com/v1/moderations",
     {
       input,
@@ -38,45 +42,48 @@ export async function moderateText(input: string[]) {
       headers: {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
-    },
-  );
-  const result = res.data.results.map((result, i) => {
-    if (result.flagged) {
-      return 1;
-    } else if (!result.flagged) {
-      return 0;
     }
-  });
-
-  return result;
+  );
 }
 
-export async function generateBlogPosts(blogTitles: string[]) {
-  const openai = new OpenAI({
+export async function moderateText(input: string[]) {
+  const moderationResult = await getModerationResult(input);
+
+  return moderationResult.data.results.map((result) =>
+    result.flagged ? 1 : 0
+  );
+}
+
+// Task 3 functions
+function createOPENAIinstance() {
+  return new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
-  const res = await openai.chat.completions.create({
+}
+async function getAnswerFromGPT(blogTitles: string[]) {
+  const openai = createOPENAIinstance();
+
+  return openai.chat.completions.create({
     model: "gpt-3.5-turbo",
     messages: [
       {
         role: "user",
         content: `Generate blog posts for provided blog titles, make them in polish language,
-        ###
-        Return in JSON format for example: ["title": xyz, "content" : blog post]
           ###
-          blog post titles: 
-          ${blogTitles}
-          `,
+          Return in this exact format: [{"title": xyz, "content" : blog post}]
+            ###
+            blog post titles: 
+            ${blogTitles}
+            `,
       },
     ],
   });
-  console.log(res);
-  type AnswerT = {
-    title: string;
-    content: string;
-  };
-  let openaiAnswer: AnswerT[];
-  openaiAnswer = JSON.parse(res.choices[0].message.content!) as AnswerT[];
-  console.log(openaiAnswer);
-  return openaiAnswer.map((firstBlogPost) => firstBlogPost.content);
+}
+export async function generateBlogPosts(blogTitles: string[]) {
+  const gptAnswer = await getAnswerFromGPT(blogTitles);
+
+  const parsedAnswer: gtpAnswer[] = JSON.parse(
+    gptAnswer.choices[0].message.content!
+  );
+  return parsedAnswer.map((firstBlogPost) => firstBlogPost.content);
 }
