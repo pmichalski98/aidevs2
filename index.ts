@@ -2,10 +2,12 @@ import axios from "axios";
 import OpenAI from "openai";
 import {
   GetAuthTokenT,
+  LiarTaskResponse,
   ModerationResults,
   SendAnswerReponseT,
   gtpAnswer,
 } from "./types/types";
+import { log } from "console";
 
 const URL = process.env.AI_DEVS_API_BASE_URL;
 const apiKey = process.env.AI_DEVS_API_KEY;
@@ -86,4 +88,35 @@ export async function generateBlogPosts(blogTitles: string[]) {
     gptAnswer.choices[0].message.content!
   );
   return parsedAnswer.map((firstBlogPost) => firstBlogPost.content);
+}
+
+//task 4 functions
+
+export async function sendQuestionTask4(token: string) {
+  const formData = new FormData();
+  const question = "Who is polish president ?";
+  formData.append("question", question);
+  const { data } = await axios.post<LiarTaskResponse>(
+    `${URL}/task/${token}`,
+    formData
+  );
+  const answerToCheck = data.answer;
+  const openai = createOPENAIinstance();
+  const openaiAnswer = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: [
+      {
+        role: "user",
+        content: `Check if this answer is valid for provided question,
+          ###
+          Return in this exact format: "YES" or "NO"
+            ###
+            Question: ${question}
+            ###
+            Answer: ${answerToCheck}
+            `,
+      },
+    ],
+  });
+  return openaiAnswer.choices[0].message.content;
 }

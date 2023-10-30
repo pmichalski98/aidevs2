@@ -23,7 +23,9 @@ export interface ModerationTaskResponse extends GetTaskResponseT {
 export interface BlogTaskResponse extends GetTaskResponseT {
   blog: string[];
 }
-
+export interface LiarTaskResponse extends GetTaskResponseT {
+  answer: string;
+}
 export interface ModerationResults {
   id: string;
   model: string;
