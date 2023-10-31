@@ -2,6 +2,8 @@ import axios from "axios";
 import OpenAI from "openai";
 import {
   GetAuthTokenT,
+  GetTaskResponseT,
+  InpromptTaskResponse,
   LiarTaskResponse,
   ModerationResults,
   SendAnswerReponseT,
@@ -119,4 +121,56 @@ export async function sendQuestionTask4(token: string) {
     ],
   });
   return openaiAnswer.choices[0].message.content;
+}
+//task 5 functions
+export async function handleTask(task: InpromptTaskResponse) {
+  //regex
+  // const splittedQuestion = task.question.split(" ");
+  // const personNameWithQuestionmark = splittedQuestion.filter((chunk) =>
+  //   chunk.match(/[A-Z]{1}/)
+  // )[0];
+  // const humanName = personNameWithQuestionmark.slice(
+  //   0,
+  //   personNameWithQuestionmark.length - 1
+  // );
+
+  const openai = createOPENAIinstance();
+  const openaiAnswer = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: [
+      {
+        role: "user",
+        content: `In given text find human name and return it.
+          ###
+          Return only name, if u dont find any return 0
+            ###
+            Text to find in : ${task.question}
+            `,
+      },
+    ],
+  });
+  const personName = openaiAnswer.choices[0].message.content;
+  if (!personName) throw new Error("Failed to find person name");
+
+  const filteredInput = task.input.filter((row) => row.includes(personName));
+  const openAiResponse = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: [
+      {
+        role: "user",
+        content: `Answer for proviced question using information that u have in context. If u dont know the answer say that you dont know.
+
+            ###
+            Question: ${task.question}
+            ###
+            Context:
+            ${JSON.stringify(filteredInput)}
+            `,
+      },
+    ],
+  });
+  const answer = openAiResponse.choices[0].message.content;
+  console.log({ filteredInput });
+  console.log({ answer });
+  return answer;
 }
