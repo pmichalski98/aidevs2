@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test";
-import { getAuthToken, getTask, sendAnswer, sendQuestionTask4 } from "../index";
+import { getAuthToken, getTask, sendAnswer } from "../common";
+import { handleTask } from "../tasks/task4";
 
 test("liar, lesson5", async () => {
   const authToken = await getAuthToken("liar");
   await getTask(authToken);
-  const yesOrNo = await sendQuestionTask4(authToken);
-  const res = await sendAnswer(yesOrNo, authToken);
-  console.log(res);
+  const answer = await handleTask(authToken);
+  const res = await sendAnswer(answer, authToken);
   expect(res).toBe("CORRECT");
 });

@@ -52,8 +52,3 @@ export interface ModerationResult {
     violence: boolean;
   };
 }
-
-export interface gtpAnswer {
-  title: string;
-  content: string;
-}
