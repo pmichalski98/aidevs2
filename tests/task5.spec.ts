@@ -1,14 +1,8 @@
 import { expect, test } from "@playwright/test";
-import {
-  getAuthToken,
-  getTask,
-  handleTask,
-  sendAnswer,
-  sendQuestionTask4,
-} from "../index";
+import { getAuthToken, getTask, handleTask, sendAnswer } from "../index";
 import { InpromptTaskResponse } from "../types/types";
 
-test("liar, lesson5", async () => {
+test("inprompt, lesson6", async () => {
   const authToken = await getAuthToken("inprompt");
   const task: InpromptTaskResponse = await getTask(authToken);
   const answer = await handleTask(task);

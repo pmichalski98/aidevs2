@@ -1,15 +1,16 @@
 import axios from "axios";
 import OpenAI from "openai";
+import { ChatOpenAI } from "langchain/chat_models/openai";
+import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import {
   GetAuthTokenT,
-  GetTaskResponseT,
   InpromptTaskResponse,
   LiarTaskResponse,
   ModerationResults,
   SendAnswerReponseT,
   gtpAnswer,
 } from "./types/types";
-import { log } from "console";
+import { HumanMessage } from "langchain/schema";
 
 const URL = process.env.AI_DEVS_API_BASE_URL;
 const apiKey = process.env.AI_DEVS_API_KEY;
@@ -135,21 +136,34 @@ export async function handleTask(task: InpromptTaskResponse) {
   // );
 
   const openai = createOPENAIinstance();
-  const openaiAnswer = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo",
-    messages: [
-      {
-        role: "user",
-        content: `In given text find human name and return it.
-          ###
-          Return only name, if u dont find any return 0
-            ###
-            Text to find in : ${task.question}
-            `,
-      },
-    ],
-  });
-  const personName = openaiAnswer.choices[0].message.content;
+  const chat = new ChatOpenAI();
+  const prompt = new HumanMessage(`In given text find human name and return it.
+  ###
+  Return only name, if u dont find any return 0
+    ###
+    Text to find in : ${task.question}
+    `);
+  console.log({ prompt });
+
+  const openaiAnswer = await chat.call([prompt]);
+  // const openaiAnswer = await openai.chat.completions.create({
+  //   model: "gpt-3.5-turbo",
+  //   messages: [
+  //     {
+  //       role: "user",
+  //       content: `In given text find human name and return it.
+  //         ###
+  //         Return only name, if u dont find any return 0
+  //           ###
+  //           Text to find in : ${task.question}
+  //           `,
+  //     },
+  //   ],
+  // });
+  // const personName = openaiAnswer.choices[0].message.content;
+  const personName = openaiAnswer.content;
+  console.log({ personName });
+
   if (!personName) throw new Error("Failed to find person name");
 
   const filteredInput = task.input.filter((row) => row.includes(personName));
@@ -172,5 +186,15 @@ export async function handleTask(task: InpromptTaskResponse) {
   const answer = openAiResponse.choices[0].message.content;
   console.log({ filteredInput });
   console.log({ answer });
+  return answer;
+}
+export async function embeddingTask() {
+  const phraseToEmbedd = "Hawaiian pizza";
+  const openai = createOPENAIinstance();
+  const embedding = await openai.embeddings.create({
+    model: "text-embedding-ada-002",
+    input: phraseToEmbedd,
+  });
+  const answer = embedding.data[0].embedding;
   return answer;
 }
