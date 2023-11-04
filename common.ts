@@ -20,11 +20,14 @@ export async function getTask(token: string) {
 }
 
 export async function sendAnswer(answer: unknown, token: string) {
-  const res = await axios.post<SendAnswerReponseT>(`${URL}/answer/${token}`, {
-    answer: answer,
-  });
-
-  return res.data.note;
+  try {
+    const res = await axios.post<SendAnswerReponseT>(`${URL}/answer/${token}`, {
+      answer: answer,
+    });
+    return res.data.note;
+  } catch (e) {
+    return e;
+  }
 }
 export function createOPENAIinstance() {
   return new OpenAI({
