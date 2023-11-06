@@ -9,7 +9,8 @@
     "task5": "npx playwright test --grep Task5",
     "task6": "npx playwright test --grep Task6",
     "task7": "npx playwright test --grep Task7",
-    "task8": "npx playwright test --grep Task8"
+    "task8": "npx playwright test --grep Task8",
+    "task9": "npx playwright test --grep Task9"
   },
   "devDependencies": {
     "@playwright/test": "^1.39.0",
