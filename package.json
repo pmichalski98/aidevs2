@@ -10,7 +10,8 @@
     "task6": "npx playwright test --grep Task6",
     "task7": "npx playwright test --grep Task7",
     "task8": "npx playwright test --grep Task8",
-    "task9": "npx playwright test --grep Task9"
+    "task9": "npx playwright test --grep Task9",
+    "task10": "npx playwright test --grep Task10"
   },
   "devDependencies": {
     "@playwright/test": "^1.39.0",
@@ -37,6 +38,7 @@
     "playwright": "^1.39.0",
     "playwright-test": "^12.4.3",
     "prettier": "^3.0.3",
+    "puppeteer": "^19.11.1",
     "v8-compile-cache-lib": "^3.0.1",
     "yn": "^3.1.1"
   },

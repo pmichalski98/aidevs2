@@ -2,7 +2,6 @@ import axios from "axios";
 import { LiarTaskResponse } from "../types/types";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { HumanMessage } from "langchain/schema";
-
 export async function handleTask(token: string) {
   const formData = new FormData();
   const question = "Who is polish president ?";
@@ -11,7 +10,7 @@ export async function handleTask(token: string) {
 
   const { data } = await axios.post<LiarTaskResponse>(
     `${process.env.AI_DEVS_API_BASE_URL}/task/${token}`,
-    formData
+    formData,
   );
   const answerToCheck = data.answer;
 
