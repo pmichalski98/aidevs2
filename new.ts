@@ -26,7 +26,10 @@ function editPckJson() {
   );
 }
 function createNewTaskFile() {
-  writeFileSync(`./tasks/task${newNum}.ts`, "");
+  writeFileSync(
+    `./tasks/task${newNum}.ts`,
+    "export async function handleTask() {\n" + "    \n" + "}",
+  );
 }
 function createNewTestFile() {
   const dirs = readdirSync(`./tests`);
