@@ -6,6 +6,6 @@ test("knowledge, lesson15", async () => {
   const authToken = await getAuthToken("knowledge");
   const task = await getTask(authToken);
   const answer = await handleTask(task);
-  // const res = await sendAnswer(answer, authToken);
-  // expect(res).toBe("CORRECT");
+  const res = await sendAnswer(answer, authToken);
+  expect(res).toBe("CORRECT");
 });
